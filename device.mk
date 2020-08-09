@@ -57,4 +57,4 @@ $(call inherit-product, $(LOCAL_PATH)/platform/google_override.mk)
 $(call inherit-product, $(LOCAL_PATH)/platform/debug_boot.mk)
 
 # Vendor
--include vendor/sony/redwood/redwood-vendor.mk
+-include vendor/sony/mt6757/mt6757-vendor.mk
