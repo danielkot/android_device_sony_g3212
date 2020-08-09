@@ -1,10 +1,8 @@
-# MTK platform .rc configure
-
-import init.connectivity.rc
-import init.mt6757.usb.rc
-import init.project.rc
-import init.sensor_1_0.rc
-import init.modem.rc
+import /init.connectivity.rc
+import /init.mt6757.usb.rc
+import /init.project.rc
+import /init.sensor_1_0.rc
+import /init.modem.rc
 
 on early-init
     write /proc/ppm/policy/userlimit_min_cpu_freq "1 1794000"
@@ -117,6 +115,10 @@ on property:persist.service.battery.smt_chg=charging_resume
 
 on fs
     mount_all /fstab.mt6757
+	#mount ext4 /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/system /system ro wait
+	#mount ext4 /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/userdata /data noatime,nosuid,nodev,noauto_da_alloc,errors=panic wait,check,quota,formattable,resize
+	#mount ext4 /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/cache /cache noatime,nosuid,nodev,noauto_da_alloc,discard wait,check
+
 # CEI comments start
 # soft charge 3.0
     chmod 0666 /sys/devices/platform/battery/SC30_En
@@ -219,9 +221,7 @@ on post-fs-data
     mkdir /dev/radio 0770 radio radio
 
     mkdir /data/drm/wv 0770 drm system
-    symlink /oem/android-config/agps_profiles_conf2.xml /data/customization/agps_profiles_conf2.xml
     chmod 0660 /dev/spm
-    chown system system /dev/spm
 
 # GPS
     mkdir /data/gps_mnl 0771 gps system
@@ -238,9 +238,6 @@ on post-fs-data
     mkdir /data/vendor/nfc 0760 nfc system
     mkdir /data/vendor/nfc/param 0760 nfc system
     #E: [VY36] JackBB 2016/1/6
-
-    # Create directory for font change support
-    exec u:r:font_selector_make_dir:s0 system -- /system/bin/font-selector-make-dir.sh
 
 # -----------------------
 # Add by MTK
