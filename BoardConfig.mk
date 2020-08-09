@@ -55,6 +55,8 @@ BOARD_MKBOOTIMG_ARGS := --board 1465391499 --ramdisk_offset 0x04f88000 --second_
 BOARD_KERNEL_PAGESIZE := 2048
 BOARD_KERNEL_CMDLINE := androidboot.selinux=permissive androidboot.hardware=$(TARGET_BOARD_PLATFORM)
 BOARD_KERNEL_IMAGE_NAME := Image.gz-dtb
+TARGET_KERNEL_SOURCE := kernel/sony/mt6757
+KERNEL_DIR := $(TARGET_KERNEL_SOURCE)
 TARGET_KERNEL_CONFIG := redwood_defconfig
 
 # Manifest
