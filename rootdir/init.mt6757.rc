@@ -222,6 +222,7 @@ on post-fs-data
 
     mkdir /data/drm/wv 0770 drm system
     chmod 0660 /dev/spm
+    chown system system /dev/spm
 
 # GPS
     mkdir /data/gps_mnl 0771 gps system
