@@ -1,31 +1,11 @@
-import /init.connectivity.rc
-import /init.mt6757.usb.rc
-import /init.project.rc
-import /init.sensor_1_0.rc
-import /init.modem.rc
+import init.mt6757.usb.rc
+import init.modem.rc
 
 on early-init
-    write /proc/ppm/policy/userlimit_min_cpu_freq "1 1794000"
-    write /proc/ppm/policy/userlimit_min_cpu_core "1 1"
-    write /proc/bootprof "INIT:early-init"
-    mount debugfs debugfs /sys/kernel/debug
-    chmod 0755 /sys/kernel/debug
+    # Turn off backlight on blank
+    write /sys/class/leds/lcd-backlight/trigger "backlight"
 
 on init
-
-    write /sys/block/zram0/comp_algorithm lz4
-
-    write /proc/sys/vm/swappiness 100
-
-    # Support legacy paths
-    symlink /sdcard /mnt/sdcard
-
-    # if primary storage is physical, set ro.vold.primary_physical to 1
-    # setprop ro.vold.primary_physical 1
-
-    # DIAG expose exp_main
-    setprop persist.aee.preserve.main enable
-
     # BATTERY proc
     chown shell system /proc/mtk_battery_cmd/current_cmd
     chown shell system /proc/mtk_battery_cmd/discharging_cmd
@@ -46,129 +26,16 @@ on init
     chown root system /proc/lk_env
     chmod 0660 /proc/lk_env
 
-# increase sysctl_rmem_max and sysctl_wmem_max values to 2M
-    write /proc/sys/net/core/wmem_max 8388608
-    write /proc/sys/net/core/rmem_max 8388608
-
-# update cpus for cpuset cgroup
-    write /dev/cpuset/foreground/cpus 0-7
-    write /dev/cpuset/foreground/boost/cpus 0-7
-    write /dev/cpuset/background/cpus 0-7
-    write /dev/cpuset/system-background/cpus 0-7
-    write /dev/cpuset/top-app/cpus 0-7
-
-on late-init
-    write /proc/bootprof "INIT:late-init"
-
-# mount different fs start
-
-#on charger
-#    mount ext4 /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/system /system ro wait
-#    exec /system/bin/e2fsck -f -p /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/cache
-#    mount ext4 /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/cache /cache rw wait
-#    #mount Qnovo
-#    wait /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/Qnovo
-#    mount ext4 /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/Qnovo /qns nosuid nodev noatime noexec barrier=0 discard
-#    chown qns qns /qns
-#    chmod 0750 /qns
-#    restorecon_recursive /qns
-#    chown qns qns /sys/class/qns
-#    chown qns qns /sys/class/qns/alarm
-#    chown qns qns /sys/class/qns/battery_type
-#    chown qns qns /sys/class/qns/charge_current
-#    chown qns qns /sys/class/qns/charging_state
-#    chown qns qns /sys/class/qns/current_now
-#    chown qns qns /sys/class/qns/design
-#    chown qns qns /sys/class/qns/fcc
-#    chown qns qns /sys/class/qns/options
-#    chown qns qns /sys/class/qns/soc
-#    chown qns qns /sys/class/qns/temp
-#    chown qns qns /sys/class/qns/voltage
-#    start qns
-#    chmod 0660 /dev/spm
-#    chown system system /dev/spm
-#    start spm_script
-#    chmod 0666 /dev/kmsg
-#    write /sys/devices/platform/battery_meter/FG_daemon_log_level 7
-#    write /sys/bus/platform/devices/battery/FG_daemon_log_level 7
-#    start fuelgauged
-#    start servicemanager
-
-# CEI comments start, FP22589, Prevent swelling
-on property:persist.service.battery.charge=0
-	write /sys/class/power_supply/battery/enable_llk 0
-
-on property:persist.service.battery.charge=1
-	write /sys/class/power_supply/battery/enable_llk 1
-# CEI comments end, FP22589, Prevent swelling
-
-# CEI comments start, BATTERY_CARE
-on property:persist.service.battery.smt_chg=activate
-    write /sys/class/power_supply/battery/smart_charging_activation 1
-
-on property:persist.service.battery.smt_chg=charging_suspend
-    write /sys/class/power_supply/battery/smart_charging_interruption 1
-
-on property:persist.service.battery.smt_chg=charging_resume
-    write /sys/class/power_supply/battery/smart_charging_interruption 0
-# CEI comments end, BATTERY_CARE
+on charger
+    chown system system /dev/spm
+    start spm_script
+    start fuelgauged
 
 on fs
-    mount_all /fstab.mt6757
-	#mount ext4 /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/system /system ro wait
-	#mount ext4 /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/userdata /data noatime,nosuid,nodev,noauto_da_alloc,errors=panic wait,check,quota,formattable,resize
-	#mount ext4 /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/cache /cache noatime,nosuid,nodev,noauto_da_alloc,discard wait,check
-
-# CEI comments start
-# soft charge 3.0
-    chmod 0666 /sys/devices/platform/battery/SC30_En
-    chmod 0666 /sys/devices/platform/battery/SC30_Status
-    chmod 0666 /sys/devices/platform/battery/Chk_SC30_Data
-    chown system system /sys/devices/platform/battery/SC30_En
-    chown system system /sys/devices/platform/battery/SC30_Status
-    chown system system /sys/devices/platform/battery/Chk_SC30_Data
-# CEI comments end
-
-# CEI comments start
-# battery health(aging factor)
-    chown system system /sys/devices/platform/battery/charge_full_design
-    chown system system /sys/devices/platform/battery/age_counter
-    chown system system /sys/devices/platform/battery/age_mtkcalc
-    chown system system /sys/devices/platform/battery/age_avgmiscta
-    chown system system /sys/devices/platform/battery/age_testadd
-    chown system system /sys/devices/platform/battery/charge_full
-# CEI comments end
+    mount_all fstab.mt6757
 
 on post-fs
-    write /proc/bootprof "INIT:post-fs"
-    # Support legacy paths
     symlink /sdcard /storage/sdcard0
-
-    # Support A/B feature for boot region
-    symlink /dev/block/mmcblk0boot0 /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/preloader_a
-    symlink /dev/block/mmcblk0boot1 /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/preloader_b
-
-    #change permissions for mediaserver
-    chown root media /proc/clkmgr/mipi_test
-
-    #change permission for engineer mode
-    chown radio system /proc/clkmgr/pll_test
-    chown radio system /proc/clkmgr/pll_fsel
-    chmod 0664 /proc/clkmgr/pll_test
-    chmod 0664 /proc/clkmgr/pll_fsel
-    #change permission for engineer mode
-    chown radio system /proc/freqhopping/dramc
-    chown radio system /proc/freqhopping/dumpregs
-    chown radio system /proc/freqhopping/freqhopping_debug
-    chown radio system /proc/freqhopping/status
-    chown radio system /proc/freqhopping/userdef
-    mkdir /dev/socket/tfsw 0770 system system
-
-# change owner
-    chown system system /proc/bootprof
-    chmod 0664 /proc/bootprof
-    chown root system /proc/mtprof/cputime
-    chown root system /proc/mtprof/reboot_pid
 
     chown system system /protect_f
     chmod 0770 /protect_f
@@ -177,7 +44,6 @@ on post-fs
     chmod 0770 /protect_s
 
 on post-fs-data
-    write /proc/bootprof "INIT:post-fs-data"
     # M: kernel-4.4 tracing folder will be skipped to label
     # label them specificly for temporary solution
     restorecon_recursive /sys/kernel/debug/tracing
@@ -350,14 +216,14 @@ on post-fs-data
     chown radio system /sys/devices/platform/mt-pmic/low_battery_protect_ut
 
     mkdir /data/amit/ 0770 system system
-		mkdir /data/misc/sensor 0774 system system
+    mkdir /data/misc/sensor 0774 system system
     mkdir /data/misc/akmd 0770 system system
     mkdir /data/misc/s62x 0771 compass compass
     mkdir /data/acdapi/ 0770 system system
     chmod 0660 /data/misc/acdapi/calib.dat
     chmod 0660 /data/misc/acdapi/param.dat
     chmod 0660 /data/misc/acdapi/sensors.dat
-    mkdir	/data/mcube 0664 system system
+    mkdir /data/mcube 0664 system system
 
     chown system /sys/class/input/input1/enable
     chown system /sys/class/input/input1/delay
@@ -607,10 +473,7 @@ on post-fs-data
     chown system system /proc/secmem0
 
     chmod 0666 /dev/exm0
-
-
-	#Thermal
-	mkdir /data/.tp/ 0775 system system
+    mkdir /data/.tp/ 0775 system system
 
     #Significant motion sensor type for Doze
     chmod 0440 /sys/bus/platform/drivers/gsensor/pmrelax
@@ -622,8 +485,6 @@ on post-fs-data
 # -----------------------
 
 on boot
-    write /proc/bootprof "INIT:boot"
-
     write /proc/sys/vm/dirty_writeback_centisecs 300
     chmod 0660 /sys/power/autosleep
 
@@ -800,314 +661,8 @@ on boot
     chmod 660 /dev/ttyGS1
     chown system radio /dev/ttyGS1
 
-on property:ro.board.platform=mt6753
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq
-    write /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq 1300000
 
-on property:vold.decrypt=trigger_reset_main
-    write /proc/bootprof "INIT:vold.decrypt=trigger_reset_main"
-    setprop sys.boot_completed 0
-    setprop dev.bootcomplete 0
-    setprop service.nvram_init 0
-
-on property:vold.decrypt=trigger_post_fs_data
-    write /proc/bootprof "INIT:vold.decrypt=trigger_post_fs_data"
-
-on property:vold.decrypt=trigger_restart_min_framework
-    write /proc/bootprof "INIT:vold.decrypt=trigger_restart_min_framework"
-    start nvram_daemon
-    start msensord
-    start permission_check
-    start stp_dump
-
-on property:vold.decrypt=trigger_restart_framework
-    write /proc/bootprof "INIT:vold.decrypt=trigger_restart_framework"
-    start nvram_daemon
-    start msensord
-    start permission_check
-
-on property:vold.decrypt=trigger_shutdown_framework
-    write /proc/bootprof "INIT:vold.decrypt=trigger_shutdown_framework"
-    stop stp_dump
-    setprop sys.boot_completed 0
-    setprop dev.bootcomplete 0
-    setprop service.nvram_init 0
-
-
-# Define TCP buffer sizes for various networks
-#   ReadMin, ReadInitial, ReadMax, WriteMin, WriteInitial, WriteMax,
-    setprop net.tcp.buffersize.default 4096,87380,524288,4096,16384,524288
-    setprop net.tcp.buffersize.wifi    524288,1048576,2097152,262144,524288,1048576
-    setprop net.tcp.buffersize.lte     524288,1048576,2097152,262144,524288,1048576
-    setprop net.tcp.buffersize.umts    4094,87380,524288,4096,16384,524288
-    setprop net.tcp.buffersize.hspa    4094,87380,524288,4096,16384,524288
-    setprop net.tcp.buffersize.hsupa   4094,87380,524288,4096,16384,524288
-    setprop net.tcp.buffersize.hsdpa   4094,87380,524288,4096,16384,524288
-    setprop net.tcp.buffersize.hspap   4094,87380,1220608,4096,16384,1220608
-    setprop net.tcp.buffersize.edge    4093,26280,35040,4096,16384,35040
-    setprop net.tcp.buffersize.gprs    4092,8760,11680,4096,8760,11680
-
-    setprop persist.sys.strictmode.disable 1
-
-# Set enableflags for boot trace
-on property:ro.boot.boot_trace=1
-    setprop debug.atrace.tags.enableflags 0x7ffffe
-
-## mtk printk uart controller
-on property:persist.uartconsole.enable=1
-    write /proc/mtprintk 1
-
-
-# bugreport is triggered by holding down volume down, volume up and power
-service bugreport /system/bin/dumpstate -d -p -B -z \
-        -o /data/user_de/0/com.android.shell/files/bugreports/bugreport
-    class late_start
-    disabled
-    oneshot
-    keycodes 114 115 116
-
-on property:sys.boot_completed=1
-    # restore perf. parameters
-    write /proc/ppm/policy/userlimit_min_cpu_freq "1 -1"
-    write /proc/ppm/policy/userlimit_min_cpu_core "1 -1"
-
-service pl_calibration /system/bin/pl_calibration
-    class main
-    user root
-    oneshot
-
-#CEI comments start
-#Add NVRAM for SW version, project ID and MSN
-service nvram_write /system/bin/nvram_write
-    class main
-    user root
-    group system
-    oneshot
-#CEI comments end
-
-#S- [BY57] BUG#811 Grace_Chang G-sensor read miscTA for FRU
-service g_read_miscta /system/bin/g_read_miscta
-    class main
-    user root
-    group system
-    oneshot
-    disabled
-
-# Let g_read_miscta start later than nvram_daemon
-on property:sys.boot_completed=1
-    start g_read_miscta
-#E- [BY57] BUG#811 Grace_Chang G-sensor read miscTA for FRU
-
-# write proc for test sim
-    on property:gsm.sim.ril.testsim=0
-    write /proc/sys/net/netfilter/nf_conntrack_tcp_no_window_check 0
-    write /proc/sys/net/ipv4/tcp_rto_min 200
-    write /proc/sys/net/ipv4/tcp_early_retrans 3
-    on property:gsm.sim.ril.testsim=1
-    write /proc/sys/net/netfilter/nf_conntrack_tcp_no_window_check 1
-    write /proc/sys/net/ipv4/tcp_rto_min 400
-    write /proc/sys/net/ipv4/tcp_early_retrans 0
-    on property:gsm.sim.ril.testsim.2=0
-    write /proc/sys/net/netfilter/nf_conntrack_tcp_no_window_check 0
-    write /proc/sys/net/ipv4/tcp_rto_min 200
-    write /proc/sys/net/ipv4/tcp_early_retrans 3
-    on property:gsm.sim.ril.testsim.2=1
-    write /proc/sys/net/netfilter/nf_conntrack_tcp_no_window_check 1
-    write /proc/sys/net/ipv4/tcp_rto_min 400
-    write /proc/sys/net/ipv4/tcp_early_retrans 0
-    on property:gsm.sim.ril.testsim.3=0
-    write /proc/sys/net/netfilter/nf_conntrack_tcp_no_window_check 0
-    write /proc/sys/net/ipv4/tcp_rto_min 200
-    write /proc/sys/net/ipv4/tcp_early_retrans 3
-    on property:gsm.sim.ril.testsim.3=1
-    write /proc/sys/net/netfilter/nf_conntrack_tcp_no_window_check 1
-    write /proc/sys/net/ipv4/tcp_rto_min 400
-    write /proc/sys/net/ipv4/tcp_early_retrans 0
-    on property:gsm.sim.ril.testsim.4=0
-    write /proc/sys/net/netfilter/nf_conntrack_tcp_no_window_check 0
-    write /proc/sys/net/ipv4/tcp_rto_min 200
-    write /proc/sys/net/ipv4/tcp_early_retrans 3
-    on property:gsm.sim.ril.testsim.4=1
-    write /proc/sys/net/netfilter/nf_conntrack_tcp_no_window_check 1
-    write /proc/sys/net/ipv4/tcp_rto_min 400
-    write /proc/sys/net/ipv4/tcp_early_retrans 0
-
-#service dpfd /vendor/bin/dpfd
-#	user root
-#	group system media
-
-#
-#  External Modme control related services
-#
-
-#
-#  Modem related services (Begin)
-#
-##Add by T.Zh for ppp daemon
-#service pppd /system/bin/pppd file /data/misc/ppp/ppp_options
-#    user root
-#    disabled
-#    oneshot
-#
-##
-#
-#  Modem related services (End)
-#
-
-#
-#sensor service (begin)
-#
-
-service s62xd /vendor/bin/s62xd
-    disabled
-    user compass
-    group system
-    class main
-service ami304d /vendor/bin/ami304d
-    user system
-    group system
-    disabled
-    class main
-
-service memsicd /vendor/bin/memsicd
-     disabled
-    user system
-    group system
-    class main
-
-service memsicd3416x /vendor/bin/memsicd3416x
-     disabled
-	 user system
-    group system
-    class main
-service akmd8975 /vendor/bin/akmd8975
-    disabled
-    user system
-    group system
-    class main
-
-service akmd8963 /vendor/bin/akmd8963
-    disabled
-    user system
-    group system
-    class main
-
-service akmd09911 /vendor/bin/akmd09911
-    disabled
-    user system
-    group system
-    class main
-service akmd09912 /vendor/bin/akmd09912
-    disabled
-    user system
-    group system
-    class main
-service bmm050d /vendor/bin/bmm050d
-    disabled
-    user system
-    group system
-    class main
-
-service bmm056d /vendor/bin/bmm056d
-    disabled
-    user system
-    group system
-    class main
-service mc6420d /vendor/bin/mc6420d
-    disabled
-    user system
-    group system
-    class main
-service qmc5983d /vendor/bin/qmc5983d
-     disabled
-	 user system
-    group system
-    class main
-
-service orientationd /vendor/bin/orientationd
-    disabled
-    user system
-    group system input
-    class main
-service AcdApiDaemon /vendor/bin/AcdApiDaemon
-    disabled
-    user system
-    group system
-    class main
-
-service geomagneticd /vendor/bin/geomagneticd
-    disabled
-    user system
-    group system input
-    class main
-
-service mc64xxd /vendor/bin/mc64xxd
-    disabled
-    user system
-    group system
-    class main
-#
-#sensor service (end)
-#
-
-# Config file updater
-service ota-updater /system/bin/ota-config-updater.sh
-    class main
-    user system
-    group system
-    disabled
-    oneshot
-
-# set up symbolic links to proper configuration file
-service config-linker /system/bin/multi-cdf-symlinker.sh
-    class main
-    user system
-    group system
-    disabled
-    oneshot
-
-# Note! that there is a dependency towards taimport property
-# the property is set immediatly after execution of taimport.
-on property:init.taimport.ready=true
-    start config-linker
-
-#add for power-off alarm
-#service poad /vendor/bin/poad
-#    class main
-#    user system
-#    group system
-#    oneshot
-
-#service BGW /vendor/xbin/BGW
-#	user system
-#	group gps system radio
-#	class main
-
-# Battery info
-on property:persist.mediatek.fg.disable=1
-    write /sys/devices/platform/battery_meter/FG_daemon_disable 1
-    write /sys/bus/platform/devices/battery/FG_daemon_disable 1
-
-on property:persist.mediatek.fg.force25c=1
-    write /sys/devices/platform/battery_meter/FG_drv_force25c 1
-    write /sys/bus/platform/devices/battery/Battery_Temperature 25
-
-on property:persist.mediatek.fg.force25c=0
-    write /sys/devices/platform/battery_meter/FG_drv_force25c 0
-    write /sys/bus/platform/devices/battery/Battery_Temperature 65535
-
-on property:persist.mediatek.fg.log.enable=1
-    write /sys/devices/platform/battery_meter/FG_daemon_log_level 7
-    write /sys/bus/platform/devices/battery/FG_daemon_log_level 7
-    write /proc/sys/kernel/printk 8
-
-on boot
-
-#set the property of persiste.radio.reset_on_switch
-setprop persist.radio.reset_on_switch false
-#end
-
-#set the property of rild.mark_switchuser
-setprop rild.mark_switchuser 0
-#end
+# Charger
+service charger /charger
+    class charger
+    seclabel u:r:charger:s0
