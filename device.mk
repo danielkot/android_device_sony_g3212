@@ -31,7 +31,8 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/media_profiles.xml:system/vendor/etc/media_profiles.xml
 
 # Ramdisk
-PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*,$(LOCAL_PATH)/rootdir,root) $(call find-copy-subdir-files,*,$(LOCAL_PATH)/missing_files,system)
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*,$(LOCAL_PATH)/rootdir,root)
+#$(call find-copy-subdir-files,*,$(LOCAL_PATH)/missing_files,system)
 
 # Gatekeeper
 #PRODUCT_PACKAGES += \
