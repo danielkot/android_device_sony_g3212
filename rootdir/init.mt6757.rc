@@ -26,11 +26,6 @@ on init
     chown root system /proc/lk_env
     chmod 0660 /proc/lk_env
 
-on charger
-    chown system system /dev/spm
-    start spm_script
-    start fuelgauged
-
 on fs
     mount_all fstab.mt6757
 
@@ -660,9 +655,3 @@ on boot
     chown system radio /dev/ttyGS0
     chmod 660 /dev/ttyGS1
     chown system radio /dev/ttyGS1
-
-
-# Charger
-service charger /charger
-    class charger
-    seclabel u:r:charger:s0
