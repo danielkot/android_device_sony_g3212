@@ -115,6 +115,6 @@ TARGET_SYSTEM_PROP := $(LOCAL_PATH)/system.prop
 
 # SELinux
 ifneq ($(BUILD_ONLY_TWRP),true)
-	BOARD_SEPOLICY_VERS := 27.0
+#	BOARD_SEPOLICY_VERS := 27.0
 	BOARD_SEPOLICY_DIRS += $(LOCAL_PATH)/sepolicy
 endif
