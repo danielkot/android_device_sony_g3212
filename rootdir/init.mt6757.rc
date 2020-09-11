@@ -1,8 +1,8 @@
-import init.mt6757.usb.rc
-import init.connectivity.rc
-import init.sensor_1_0.rc
-import init.project.rc
-import init.modem.rc
+import /init.mt6757.usb.rc
+import /init.connectivity.rc
+import /init.sensor_1_0.rc
+import /init.project.rc
+import /init.modem.rc
 
 on early-init
     # Turn off backlight on blank
