@@ -30,7 +30,7 @@ on init
     chmod 0660 /proc/lk_env
 
 on fs
-    mount_all fstab.mt6757
+    mount_all /fstab.mt6757
 
 on post-fs
     symlink /sdcard /storage/sdcard0
