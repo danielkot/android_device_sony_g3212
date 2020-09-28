@@ -1,4 +1,2 @@
 add_lunch_combo lineage_g3212-user
 add_lunch_combo lineage_g3212-userdebug
-add_lunch_combo rr_g3212-userdebug
-add_lunch_combo rr_g3212-user
