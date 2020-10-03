@@ -1,0 +1,14 @@
+include device/sony/g3212/device.mk
+include vendor/dot/config/common.mk
+
+TARGET_BOOT_ANIMATION_RES := 1080
+TARGET_GAPPS_ARCH := arm64
+IS_PHONE := true
+PRODUCT_RELEASE_NAME := XA1 Ultra
+PRODUCT_DEVICE := g3212
+PRODUCT_NAME := dot_g3212
+PRODUCT_BRAND := Sony
+PRODUCT_MODEL := Xperia XA1 Ultra
+PRODUCT_MANUFACTURER := Sony
+PRODUCT_RESTRICT_VENDOR_FILES := false
+PRODUCT_GMS_CLIENTID_BASE := android-sony
