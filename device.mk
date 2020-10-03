@@ -1,7 +1,7 @@
 LOCAL_PATH := device/sony/g3212
 
 ifeq ($(BUILD_ONLY_TWRP),true)
-    PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*,$(LOCAL_PATH)/recovery,recovery/root)
+    PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*,$(LOCAL_PATH)/recovery,root)
 endif
 ifneq ($(BUILD_ONLY_TWRP),true)
     DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay
