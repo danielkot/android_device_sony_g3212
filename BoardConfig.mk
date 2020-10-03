@@ -82,7 +82,6 @@ TARGET_USES_NQ_NFC := true
 BOARD_NFC_CHIPSET := pn544
 
 # Display
-DEVICE_RESOLUTION := 1080x1920
 TARGET_SCREEN_WIDTH := 1080
 TARGET_SCREEN_HEIGHT := 1920
 
@@ -96,23 +95,26 @@ TARGET_PROVIDES_LIBLIGHT := true
 TARGET_RECOVERY_FSTAB := $(LOCAL_PATH)/rootdir/fstab.mt6757
 
 ifeq ($(BUILD_ONLY_TWRP),true)
-	# TWRP
-	BOARD_USE_CUSTOM_RECOVERY_FONT := \"roboto_23x41.h\"
+	TARGET_RECOVERY_PIXEL_FORMAT := "BGRA_8888"
+	TARGET_USE_CUSTOM_LUN_FILE_PATH := /sys/devices/platform/mt_usb/musb-hdrc.0.auto/gadget/lun%d/file
+	TARGET_RECOVERY_LCD_BACKLIGHT_PATH := \"/sys/class/leds/lcd-backlight/brightness\"
+	TW_CUSTOM_CPU_TEMP_PATH := /sys/devices/virtual/thermal/thermal_zone1/temp
 	TW_USE_MODEL_HARDWARE_ID_FOR_DEVICE_ID := true
-	TW_DEVICE_VERSION := DANiO
+	RECOVERY_GRAPHICS_USE_LINELENGTH := true
+	TW_MAX_BRIGHTNESS := 255
+	BOARD_SUPPRESS_SECURE_ERASE := true
+	TW_INCLUDE_CRYPTO := true
+	TW_BRIGHTNESS_PATH := /sys/class/leds/lcd-backlight/brightness
+	TW_MAX_BRIGHTNESS := 255
 	RECOVERY_SDCARD_ON_DATA := true
 	TW_INCLUDE_CRYPTO := true
-	TW_USE_TOOLBOX := true
-	TWRP_INCLUDE_LOGCAT := true
-	TW_MAX_BRIGHTNESS := 255
-	TW_CUSTOM_CPU_TEMP_PATH := /sys/devices/virtual/thermal/thermal_zone1/temp
-	TWHAVE_SELINUX := true
-	# Crypto
-	TW_CRYPTO_REAL_BLKDEV := "/dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/userdata" 
+	TW_CRYPTO_FS_TYPE := "ext4"
+	TW_CRYPTO_REAL_BLKDEV := "/dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/userdat"
 	TW_CRYPTO_MNT_POINT := "/data"
-	TW_CRYPTO_KEY_LOC := "footer"
 	TW_CRYPTO_FS_OPTIONS := "nosuid,nodev,noatime,discard,noauto_da_alloc,data=ordered"
-	TW_INCLUDE_L_CRYPTO := true
+	TW_USE_TOOLBOX := true
+	TW_EXTRA_LANGUAGES := true
+	TW_DEFAULT_LANGUAGE := en
 endif
 
 TARGET_SYSTEM_PROP := $(LOCAL_PATH)/system.prop
