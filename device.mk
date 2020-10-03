@@ -1,6 +1,6 @@
 LOCAL_PATH := device/sony/g3212
 
-ifeq ($(BUILD_ONLY_TWRP),true)
+ifneq ($(BUILD_ONLY_TWRP),true)
     DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay
 
     # Device uses high-density artwork where available
@@ -9,10 +9,10 @@ ifeq ($(BUILD_ONLY_TWRP),true)
     PRODUCT_AAPT_PREBUILT_DPI := xxhdpi xhdpi hdpi
 
     # Dalvik heap configurations
-    $(call inherit-product-if-exists, frameworks/native/build/phone-xxhdpi-2048-dalvik-heap.mk)
-
+    -include frameworks/native/build/phone-xxhdpi-2048-dalvik-heap.mk
+    -include $(SRC_TARGET_DIR)/product/product_launched_with_o.mk
     # Call hwui memory config
-    $(call inherit-product-if-exists, frameworks/native/build/phone-xxhdpi-2048-hwui-memory.mk)
+    -include frameworks/native/build/phone-xxhdpi-2048-hwui-memory.mk
 
     # Manifest
     #PRODUCT_COPY_FILES += \
