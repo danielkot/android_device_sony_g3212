@@ -53,16 +53,11 @@ ro.boot.opt_lte_support=1
 ro.boot.opt_eccci_c2k=1
 
 # other things
-ro.mediatek.chip_ver=S01
-ro.mediatek.version.branch=alps-mp-o0.mp1.tc9sp
-ro.mediatek.version.release=alps-mp-o0.mp1.tc9sp-sm11.caf-V1_cci57.64.sm11.o0_P26
-ro.mediatek.platform=MT6757
 bgw.current3gband=0
 ro.sf.hwrotation=0
 persist.mtk.wcn.combo.chipid=-1
 drm.service.enabled=true
 wfd.dummy.enable=1
-keyguard.no_require_sim=true
 camera.disable_zsl_mode=1
 persist.debug.wfd.enable=1
 service.adb.root=1
